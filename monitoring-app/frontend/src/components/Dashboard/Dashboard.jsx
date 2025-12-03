@@ -1,56 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import GrafanaEmbed from '../GrafanaEmbed/GrafanaEmbed';
+import { useAlerts } from '../../hooks/useAlerts';
 import AlertBanner from '../AlertBanner/AlertBanner';
 import AlertHistory from '../AlertHistory/AlertHistory';
+import GrafanaEmbed from '../GrafanaEmbed/GrafanaEmbed';
 import UrlInput from '../UrlInput/UrlInput';
 
 const Dashboard = () => {
   const { connectionStatus, realtimeAlerts } = useWebSocket();
-  const [visibleAlerts, setVisibleAlerts] = useState([]);
+  const [grafanaUrl, setGrafanaUrl] = useState('');
+  const [showGrafana, setShowGrafana] = useState(false);
 
-  // Add new alerts to visible list
-  React.useEffect(() => {
-    if (realtimeAlerts.length > 0) {
-      const latestAlert = realtimeAlerts[0];
-      setVisibleAlerts((prev) => [...prev, { ...latestAlert, id: Date.now() }]);
-    }
-  }, [realtimeAlerts]);
-
-  const removeAlert = (id) => {
-    setVisibleAlerts((prev) => prev.filter((alert) => alert.id !== id));
+  const handleUrlSubmit = (url) => {
+    setGrafanaUrl(url);
+    setShowGrafana(true);
   };
 
   return (
     <div className="space-y-6">
       {/* Connection Status */}
       <div
-        className={`px-4 py-2 rounded-lg text-sm ${
+        className={`p-5 rounded-xl border-2 transition-all duration-300 ${
           connectionStatus.connected
-            ? 'bg-green-100 text-green-800'
-            : 'bg-red-100 text-red-800'
+            ? 'bg-dark-900 border-primary-500 shadow-glow-yellow'
+            : 'bg-dark-900 border-primary-700'
         }`}
       >
-        <span className="font-semibold">WebSocket Status:</span>{' '}
-        {connectionStatus.message}
+        <div className="flex items-center">
+          <div
+            className={`w-3 h-3 rounded-full mr-3 ${
+              connectionStatus.connected 
+                ? 'bg-primary-500 animate-pulse-glow' 
+                : 'bg-primary-700 animate-pulse'
+            }`}
+          ></div>
+          <span className="font-semibold text-primary-400 text-lg">
+            {connectionStatus.message}
+          </span>
+        </div>
       </div>
+
+      {/* Real-time Alert Banner */}
+      {realtimeAlerts.length > 0 && <AlertBanner alerts={realtimeAlerts} />}
 
       {/* URL Input */}
-      <UrlInput />
-
-      {/* Real-time Alert Banners */}
-      <div className="fixed top-20 right-4 z-50 w-96 space-y-2">
-        {visibleAlerts.map((alert) => (
-          <AlertBanner
-            key={alert.id}
-            alert={alert}
-            onClose={() => removeAlert(alert.id)}
-          />
-        ))}
-      </div>
+      {!showGrafana && <UrlInput onSubmit={handleUrlSubmit} />}
 
       {/* Grafana Dashboard */}
-      <GrafanaEmbed />
+      {showGrafana && grafanaUrl && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex justify-between items-center bg-dark-900 p-5 rounded-xl border-2 border-primary-500">
+            <h2 className="text-2xl font-bold text-primary-400">Grafana Dashboard</h2>
+            <button
+              onClick={() => setShowGrafana(false)}
+              className="px-5 py-2.5 bg-black text-primary-400 rounded-lg hover:bg-dark-800 hover:shadow-glow-yellow border-2 border-primary-500 transition-all duration-300 font-medium"
+            >
+              Change URL
+            </button>
+          </div>
+          <GrafanaEmbed url={grafanaUrl} />
+        </div>
+      )}
 
       {/* Alert History */}
       <AlertHistory />

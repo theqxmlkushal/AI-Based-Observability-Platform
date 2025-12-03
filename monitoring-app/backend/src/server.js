@@ -6,6 +6,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/database');
 const alertRoutes = require('./routes/alerts');
+const logRoutes = require('./routes/logs');
+const profileRoutes = require('./routes/profiles');
 const { initWebSocket } = require('./services/websocketService');
 
 const app = express();
@@ -18,6 +20,12 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
+
+console.log('alertRoutes:', alertRoutes);
+console.log('logRoutes:', logRoutes);
+console.log('profileRoutes:', profileRoutes);
+
+
 
 // Middleware
 app.use(cors());
@@ -34,6 +42,8 @@ app.get('/', (req, res) => {
     status: 'running',
     endpoints: {
       alerts: '/api/alerts',
+      logs: '/api/logs',
+      profiles: '/api/profiles',
       health: '/api/health',
     },
   });
@@ -48,8 +58,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Alert routes
+// API routes
 app.use('/api/alerts', alertRoutes);
+app.use('/api/logs', logRoutes);
+app.use('/api/profiles', profileRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -74,6 +86,8 @@ const startServer = async () => {
       console.log(`WebSocket server ready`);
       console.log(`Health check: http://localhost:${PORT}/api/health`);
       console.log(`Alert webhook: http://localhost:${PORT}/api/alerts/webhook`);
+      console.log(`Logs API: http://localhost:${PORT}/api/logs`);
+      console.log(`Profiles API: http://localhost:${PORT}/api/profiles`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

@@ -3,8 +3,8 @@ import { GRAFANA_DASHBOARD_URL } from '../../utils/constants';
 
 const GrafanaEmbed = () => {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="bg-gray-800 text-white px-6 py-3">
+    <div className="bg-dark-900 border-2 border-primary-500 rounded-lg shadow-glow-yellow overflow-hidden">
+      <div className="bg-black text-primary-400 px-6 py-3 border-b-2 border-primary-500">
         <h2 className="text-xl font-semibold">Performance Metrics</h2>
       </div>
       <div className="relative" style={{ height: '800px' }}>

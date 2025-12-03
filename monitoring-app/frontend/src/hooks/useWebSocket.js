@@ -1,4 +1,3 @@
-// monitoring-app\frontend\src\hooks\useWebSocket.js
 import { useEffect, useState } from 'react';
 import { connectWebSocket, disconnectWebSocket } from '../services/websocket';
 
@@ -8,22 +7,31 @@ export const useWebSocket = () => {
     message: 'Connecting...',
   });
   const [realtimeAlerts, setRealtimeAlerts] = useState([]);
+  const [realtimeLogs, setRealtimeLogs] = useState([]);
 
   useEffect(() => {
     const handleNewAlert = (alert) => {
-      setRealtimeAlerts((prev) => [alert, ...prev].slice(0, 10)); // Keep last 10 alerts
+      setRealtimeAlerts((prev) => [alert, ...prev].slice(0, 10));
     };
 
     const handleConnectionStatus = (status) => {
       setConnectionStatus(status);
     };
 
-    const socket = connectWebSocket(handleNewAlert, handleConnectionStatus);
+    const handleNewLog = (log) => {
+      setRealtimeLogs((prev) => [log, ...prev].slice(0, 50));
+    };
+
+    const socket = connectWebSocket(handleNewAlert, handleConnectionStatus, handleNewLog);
 
     return () => {
       disconnectWebSocket();
     };
   }, []);
 
-  return { connectionStatus, realtimeAlerts };
+  return { 
+    connectionStatus, 
+    realtimeAlerts,
+    realtimeLogs,
+  };
 };

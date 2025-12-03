@@ -1,48 +1,61 @@
-//monitoring-app\frontend\src\hooks\useAlerts.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getAlertHistory, getAlertStats } from '../services/api';
 
-export const useAlerts = () => {
+export const useAlerts = (autoRefresh = false, refreshInterval = 30000) => {
   const [alerts, setAlerts] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async (limit = 50, status = null, severity = null) => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      const data = await getAlertHistory();
-      setAlerts(data.alerts || []);
-      setError(null);
+      const response = await getAlertHistory(limit, status, severity);
+      if (response.success) {
+        setAlerts(response.alerts);
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to fetch alerts');
       console.error('Error fetching alerts:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      const data = await getAlertStats();
-      setStats(data.stats || null);
+      const response = await getAlertStats();
+      if (response.success) {
+        setStats(response.stats);
+      }
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      console.error('Error fetching alert stats:', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAlerts();
     fetchStats();
+  }, [fetchAlerts, fetchStats]);
 
-    // Refresh every 30 seconds
-    const interval = setInterval(() => {
-      fetchAlerts();
-      fetchStats();
-    }, 30000);
+  useEffect(() => {
+    if (autoRefresh && refreshInterval) {
+      const interval = setInterval(() => {
+        fetchAlerts();
+        fetchStats();
+      }, refreshInterval);
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh, refreshInterval, fetchAlerts, fetchStats]);
 
-  return { alerts, stats, loading, error, refetch: fetchAlerts };
+  return {
+    alerts,
+    stats,
+    loading,
+    error,
+    fetchAlerts,
+    fetchStats,
+  };
 };

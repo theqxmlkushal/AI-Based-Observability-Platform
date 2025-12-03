@@ -3,9 +3,9 @@ import Header from './Header';
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-black">
       <Header />
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-8">
         {children}
       </main>
     </div>

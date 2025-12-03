@@ -1,15 +1,14 @@
-// monitoring-app\frontend\src\services\websocket.js
 import { io } from 'socket.io-client';
-import { WS_URL } from '../utils/constants';
+import { WEBSOCKET_URL } from '../utils/constants';
 
 let socket = null;
 
-export const connectWebSocket = (onAlert, onConnectionStatus) => {
+export const connectWebSocket = (onNewAlert, onConnectionStatus, onNewLog) => {
   if (socket) {
-    socket.disconnect();
+    return socket;
   }
 
-  socket = io(WS_URL, {
+  socket = io(WEBSOCKET_URL, {
     transports: ['websocket', 'polling'],
     reconnection: true,
     reconnectionDelay: 1000,
@@ -18,29 +17,30 @@ export const connectWebSocket = (onAlert, onConnectionStatus) => {
 
   socket.on('connect', () => {
     console.log('WebSocket connected');
-    if (onConnectionStatus) {
-      onConnectionStatus({ connected: true, message: 'Connected to server' });
-    }
   });
 
   socket.on('disconnect', () => {
     console.log('WebSocket disconnected');
-    if (onConnectionStatus) {
-      onConnectionStatus({ connected: false, message: 'Disconnected from server' });
-    }
   });
 
-  socket.on('connection-status', (data) => {
-    console.log('Connection status:', data);
+  socket.on('connection-status', (status) => {
+    console.log('Connection status:', status);
     if (onConnectionStatus) {
-      onConnectionStatus({ connected: true, message: data.message });
+      onConnectionStatus({ connected: true, message: status.message });
     }
   });
 
   socket.on('new-alert', (alert) => {
     console.log('New alert received:', alert);
-    if (onAlert) {
-      onAlert(alert);
+    if (onNewAlert) {
+      onNewAlert(alert);
+    }
+  });
+
+  socket.on('new-log', (log) => {
+    console.log('New log received:', log);
+    if (onNewLog) {
+      onNewLog(log);
     }
   });
 
@@ -58,6 +58,18 @@ export const disconnectWebSocket = () => {
   if (socket) {
     socket.disconnect();
     socket = null;
+  }
+};
+
+export const subscribeToLogs = (filters = {}) => {
+  if (socket) {
+    socket.emit('subscribe-logs', filters);
+  }
+};
+
+export const unsubscribeFromLogs = () => {
+  if (socket) {
+    socket.emit('unsubscribe-logs');
   }
 };
 

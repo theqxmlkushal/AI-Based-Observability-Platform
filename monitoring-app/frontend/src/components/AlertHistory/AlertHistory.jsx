@@ -6,17 +6,17 @@ const AlertHistory = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Alert History</h2>
-        <p className="text-gray-500">Loading alerts...</p>
+      <div className="bg-dark-900 border-2 border-primary-600 rounded-lg shadow-glow-yellow p-6">
+        <h2 className="text-xl font-semibold mb-4 text-primary-400">Alert History</h2>
+        <p className="text-primary-600">Loading alerts...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Alert History</h2>
+      <div className="bg-dark-900 border-2 border-primary-600 rounded-lg shadow-glow-yellow p-6">
+        <h2 className="text-xl font-semibold mb-4 text-primary-400">Alert History</h2>
         <p className="text-red-500">Error loading alerts: {error}</p>
       </div>
     );
@@ -25,33 +25,33 @@ const AlertHistory = () => {
   const getSeverityColor = (severity) => {
     switch (severity) {
       case 'critical':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-400 bg-red-950 border-red-600';
       case 'warning':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-primary-400 bg-primary-950 border-primary-600';
       default:
-        return 'text-blue-600 bg-blue-50';
+        return 'text-blue-400 bg-blue-950 border-blue-600';
     }
   };
 
   const getStatusColor = (status) => {
-    return status === 'firing' ? 'text-red-600' : 'text-green-600';
+    return status === 'firing' ? 'text-red-400' : 'text-green-400';
   };
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-dark-900 border-2 border-primary-600 rounded-lg shadow-glow-yellow">
+      <div className="px-6 py-4 border-b-2 border-primary-600">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Alert History</h2>
+          <h2 className="text-xl font-semibold text-primary-400">Alert History</h2>
           {stats && (
             <div className="flex space-x-4 text-sm">
-              <span className="text-gray-600">
-                Total: <span className="font-semibold">{stats.total}</span>
+              <span className="text-primary-400">
+                Total: <span className="font-semibold text-primary-300">{stats.total}</span>
               </span>
-              <span className="text-red-600">
-                Firing: <span className="font-semibold">{stats.firing}</span>
+              <span className="text-primary-400">
+                Firing: <span className="font-semibold text-red-400">{stats.firing}</span>
               </span>
-              <span className="text-green-600">
-                Resolved: <span className="font-semibold">{stats.resolved}</span>
+              <span className="text-primary-400">
+                Resolved: <span className="font-semibold text-green-400">{stats.resolved}</span>
               </span>
             </div>
           )}
@@ -60,19 +60,19 @@ const AlertHistory = () => {
 
       <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
         {alerts.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
+          <div className="p-6 text-center text-primary-600">
             No alerts recorded yet
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-primary-900">
             {alerts.map((alert) => (
-              <div key={alert._id} className="p-4 hover:bg-gray-50">
+              <div key={alert._id} className="p-4 hover:bg-dark-800 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-semibold">{alert.alertname}</span>
+                      <span className="font-semibold text-primary-300">{alert.alertname}</span>
                       <span
-                        className={`px-2 py-1 text-xs rounded ${getSeverityColor(
+                        className={`px-2 py-1 text-xs rounded border ${getSeverityColor(
                           alert.severity
                         )}`}
                       >
@@ -82,10 +82,10 @@ const AlertHistory = () => {
                         {alert.status}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-primary-400 mt-1">
                       {alert.summary || alert.description}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-primary-600 mt-1 font-mono">
                       {new Date(alert.receivedAt).toLocaleString()}
                     </p>
                   </div>
